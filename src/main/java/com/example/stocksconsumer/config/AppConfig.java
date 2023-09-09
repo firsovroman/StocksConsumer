@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableScheduling
 @PropertySource(value = "classpath:version.properties", encoding = "UTF-8")
+@PropertySource(value = "classpath:apperate.properties", encoding = "UTF-8")
 public class AppConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);

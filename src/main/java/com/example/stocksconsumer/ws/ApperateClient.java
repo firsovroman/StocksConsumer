@@ -4,8 +4,6 @@ import com.example.stocksconsumer.config.ApperateConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 public class ApperateClient {
@@ -29,7 +27,6 @@ public class ApperateClient {
     private RestTemplate createRestTemplate() {
 
         return new RestTemplateBuilder()
-                .additionalCustomizers(rt -> rt.setRequestFactory(createHttpRequestFactory()))
                 .additionalInterceptors((request, body, execution) -> {
                     // Добавляем заголовок с токеном авторизации
                     request.getHeaders().add("Authorization", config.getToken());
@@ -40,18 +37,6 @@ public class ApperateClient {
     }
 
 
-    /**
-     * Фабрика подключений
-     * после использования надо обязательно уничтожать
-     *
-     * @return
-     */
-    private ClientHttpRequestFactory createHttpRequestFactory() {
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        factory.setConnectionRequestTimeout(config.getConnTimeout());
-        factory.setConnectTimeout(config.getConnTimeout());
-        factory.setReadTimeout(config.getReadTimeout());
-        return factory;
-    }
+
 
 }
