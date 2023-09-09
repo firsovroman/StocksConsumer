@@ -1,4 +1,4 @@
-package com.example.stocksconsumer;
+package com.example.stocksconsumer.controller;
 
 import com.example.stocksconsumer.config.AppConfig;
 import com.example.stocksconsumer.entity.Companies;
@@ -27,8 +27,15 @@ public class TestController {
         return ResponseEntity.ok(appConfig.getTitle());
     }
 
+//    @GetMapping(value = "/api-test", produces = JSON_UTF8)
+//    public ResponseEntity<String> apiTest() {
+//        String result = apperateClient.makeGetRequest();
+//        return new ResponseEntity<>(result, HttpStatus.OK);
+//    }
+
+
     @GetMapping(value = "/api-test", produces = JSON_UTF8)
-    public ResponseEntity<Companies> soapTest() {
+    public ResponseEntity<Companies> apiTest() {
         Companies result = apperateClient.makeGetRequest();
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
