@@ -21,11 +21,11 @@ public class ApperateReaderJob {
     }
 
 
-    @Scheduled(initialDelayString = "5000", fixedRateString = "#{@processorConfig.scheduleReaderIntervalMillis}")
-    public void job() {
-        LOGGER.info("job() started");
+//    @Scheduled(initialDelayString = "5000", fixedRateString = "#{@processorConfig.scheduleReaderIntervalMillis}")
+//    public void job() {
+//        LOGGER.info("job() started");
 //        processor.execute();
-        LOGGER.info("job() completed");
-    }
+//        LOGGER.info("job() completed");
+//    }
 
 }
