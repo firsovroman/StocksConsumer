@@ -2,6 +2,7 @@ package com.example.stocksconsumer.controller;
 
 import com.example.stocksconsumer.config.AppConfig;
 import com.example.stocksconsumer.entity.Companies;
+import com.example.stocksconsumer.entity.Stock;
 import com.example.stocksconsumer.ws.ApperateClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +35,17 @@ public class TestController {
 //    }
 
 
-    @GetMapping(value = "/api-test", produces = JSON_UTF8)
-    public ResponseEntity<Companies> apiTest() {
-        Companies result = apperateClient.makeGetRequest();
+    @GetMapping(value = "/company-test", produces = JSON_UTF8)
+    public ResponseEntity<Companies> companyTest() {
+        Companies result = apperateClient.companyRequest();
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    @GetMapping(value = "/stock-test", produces = JSON_UTF8)
+    public ResponseEntity<Stock> stockTest() {
+        Stock result = apperateClient.stockRequest("aapl");
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+
 }
