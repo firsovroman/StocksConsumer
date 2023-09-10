@@ -52,7 +52,7 @@ public class AppConfig {
         return title;
     }
 
-    @Bean
+    @Bean("appEnvironment")
     public Environment configPropertyReader() {
         return this.environment;
     }

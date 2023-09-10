@@ -12,7 +12,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,16 +33,6 @@ public class ApperateClient {
     private RestTemplate createRestTemplate() {
         return new RestTemplateBuilder()
                 .build();
-    }
-
-
-    public String getUrlWithToken(String path) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(config.getUrl())
-                .path("/company")
-                .queryParam("last", 10)
-                .queryParam("token", config.getToken());
-
-        return builder.toUriString();
     }
 
 
