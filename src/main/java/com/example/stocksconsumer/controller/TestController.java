@@ -38,6 +38,14 @@ public class TestController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+
+    @GetMapping(value = "/company-test-limit", produces = JSON_UTF8)
+    public ResponseEntity<String> companyTestLimit() {
+        Companies result = apperateClient.companyRequestWithLimit("10000");
+        int all = result.size();
+        return new ResponseEntity<>("all companies size:"+all, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/stock-test", produces = JSON_UTF8)
     public ResponseEntity<Stock> stockTest() {
         Stock result = apperateClient.stockRequest("aapl");

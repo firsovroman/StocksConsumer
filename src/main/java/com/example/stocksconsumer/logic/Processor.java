@@ -1,6 +1,7 @@
 package com.example.stocksconsumer.logic;
 
 import com.example.stocksconsumer.dao.CompanyDTO;
+import com.example.stocksconsumer.dao.CompanyRepository;
 import com.example.stocksconsumer.dao.StockDTO;
 import com.example.stocksconsumer.dao.StockRepository;
 import com.example.stocksconsumer.entity.Companies;
@@ -11,23 +12,29 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class Processor {
 
     private final ApperateClient client;
     private final StockRepository stockRepository;
+    private final CompanyRepository companyRepository;
 
 
-    public Processor(ApperateClient client, StockRepository stockRepository1) {
+    public Processor(ApperateClient client, CompanyRepository companyRepository, StockRepository stockRepository) {
         this.client = client;
-        this.stockRepository = stockRepository1;
+        this.stockRepository = stockRepository;
+        this.companyRepository = companyRepository;
     }
 
 
     public void execute() {
         List<StockDTO> dtoStocks = new ArrayList<>();
         Companies companies = client.companyRequest();
+        List<CompanyDTO> dtos = companies.stream().map(this::mapToCompanyDTO).collect(Collectors.toList());
+        companyRepository.saveAll(dtos);
+
         for (Company c : companies) {
             Stock stock = client.stockRequest(c.getSymbol());
             dtoStocks.add(mapToStockDTO(stock));

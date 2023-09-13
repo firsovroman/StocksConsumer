@@ -62,6 +62,32 @@ public class ApperateClient {
         return response;
     }
 
+    public Companies companyRequestWithLimit(String limit) {
+        logger.debug("companyRequest() called");
+        long started = System.nanoTime();
+
+        // Создайте URL с токеном
+        String url = config.getUrl() + "company?last="+limit+"&token=" + config.getToken();
+
+        // Создайте ParameterizedTypeReference для сопоставления с объектом Companies
+        ParameterizedTypeReference<Companies> responseType = new ParameterizedTypeReference<>() {};
+
+        // Выполните GET-запрос и сопоставьте ответ с объектом Companies
+        ResponseEntity<Companies> responseEntity = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
+
+        HttpStatus httpStatus = responseEntity.getStatusCode();
+        Companies response = responseEntity.getBody();
+
+        if (HttpStatus.OK != httpStatus || response == null) {
+            throw new IllegalStateException("Bad or empty response: " + httpStatus);
+        }
+
+        long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+        logger.debug("completed in {} msecs", elapsed);
+
+        return response;
+    }
+
 
     public Stock stockRequest(String symbol) {
         logger.debug("stockRequest() called");
