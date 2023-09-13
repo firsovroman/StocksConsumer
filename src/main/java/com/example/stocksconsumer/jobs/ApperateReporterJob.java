@@ -7,21 +7,21 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApperateReaderJob {
+public class ApperateReporterJob {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApperateReaderJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApperateReporterJob.class);
 
     private final Processor processor;
 
-    public ApperateReaderJob(Processor processor) {
+    public ApperateReporterJob(Processor processor) {
         this.processor = processor;
     }
 
 
-    @Scheduled(initialDelayString = "1000", fixedRateString = "#{@processorConfig.scheduleReaderIntervalMillis}")
+    @Scheduled(initialDelayString = "10000", fixedRateString = "#{@processorConfig.scheduleReporterIntervalMillis}")
     public void job() {
         LOGGER.info("job() started");
-        processor.execute();
+        processor.report();
         LOGGER.info("job() completed");
     }
 

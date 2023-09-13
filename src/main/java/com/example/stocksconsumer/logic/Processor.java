@@ -11,6 +11,7 @@ import com.example.stocksconsumer.ws.ApperateClient;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -139,6 +140,22 @@ public class Processor {
         stockDTO.setUSMarketOpen(stock.isUSMarketOpen());
 
         return stockDTO;
+    }
+
+
+
+
+    public void report() {
+
+        Comparator<StockDTO> stockDTOComparator
+                = Comparator.comparing(
+                StockDTO::getVolume, Comparator.reverseOrder())
+                .thenComparing(StockDTO::getPreviousVolume, Comparator.reverseOrder())
+                .thenComparing(StockDTO::getCompanyName, Comparator.naturalOrder());
+
+        List<StockDTO> stocks = (List<StockDTO>) stockRepository.findAll();
+        stocks.stream().sorted(stockDTOComparator).limit(5).forEach(System.out::println);
+
     }
 
 

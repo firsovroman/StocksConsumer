@@ -12,12 +12,18 @@ import java.util.Objects;
 public class ProcessorConfig {
 
     private final String scheduleReaderIntervalMillis;
+    private final String scheduleReporterIntervalMillis;
 
     public ProcessorConfig(@Qualifier("appEnvironment") Environment reader) {
         this.scheduleReaderIntervalMillis = Objects.requireNonNull(reader.getProperty("processor.scheduleReaderIntervalMillis"));
+        this.scheduleReporterIntervalMillis = Objects.requireNonNull(reader.getProperty("processor.scheduleReporterIntervalMillis"));
     }
 
     public String getScheduleReaderIntervalMillis() {
         return scheduleReaderIntervalMillis;
+    }
+
+    public String getScheduleReporterIntervalMillis() {
+        return scheduleReporterIntervalMillis;
     }
 }
