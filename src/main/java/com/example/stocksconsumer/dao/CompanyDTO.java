@@ -9,7 +9,7 @@ public class CompanyDTO {
 
     @Id
     @GeneratedValue
-    private String companyId;
+    private Long companyId;
     private String address;
     private String address2;
     private String ceo;
@@ -42,11 +42,11 @@ public class CompanyDTO {
     public CompanyDTO() {
     }
 
-    public String getCompanyId() {
+    public Long getCompanyId() {
         return companyId;
     }
 
-    public void setCompanyId(String companyId) {
+    public void setCompanyId(Long companyId) {
         this.companyId = companyId;
     }
 

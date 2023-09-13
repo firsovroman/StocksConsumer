@@ -18,7 +18,7 @@ public class ApperateReporterJob {
     }
 
 
-    @Scheduled(initialDelayString = "10000", fixedRateString = "#{@processorConfig.scheduleReporterIntervalMillis}")
+    @Scheduled(initialDelayString = "20000", fixedRateString = "#{@processorConfig.scheduleReporterIntervalMillis}")
     public void job() {
         LOGGER.info("job() started");
         processor.report();
