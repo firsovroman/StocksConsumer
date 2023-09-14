@@ -8,19 +8,31 @@ import com.example.stocksconsumer.models.Companies;
 import com.example.stocksconsumer.models.Company;
 import com.example.stocksconsumer.models.Stock;
 import com.example.stocksconsumer.ws.ApperateClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Component
 public class Processor {
 
+    protected final Logger logger = LoggerFactory.getLogger(Processor.class);
+
+
     private final ApperateClient client;
     private final StockRepository stockRepository;
     private final CompanyRepository companyRepository;
+    private final ExecutorService pollerExecutor = Executors.newCachedThreadPool();
+
+    BlockingQueue<StockDTO> queue = new LinkedBlockingQueue<>(200);
+
+    BlockingQueue<StockDTO> stocksForSave = new LinkedBlockingQueue<>();
+
+
 
 
     public Processor(ApperateClient client, CompanyRepository companyRepository, StockRepository stockRepository) {
@@ -31,25 +43,85 @@ public class Processor {
 
 
     public void execute() {
-        List<StockDTO> dtoStocks = new ArrayList<>();
-        Companies companies = client.sendCompanyRequest();
-        List<CompanyDTO> dtos = companies.stream().map(this::mapToCompanyDTO).collect(Collectors.toList());
-        companyRepository.saveAll(dtos);
+        long started = System.nanoTime();
 
-        for (Company c : companies) {
-            Stock stock = client.stockRequest(c.getSymbol());
-            dtoStocks.add(mapToStockDTO(stock));
-        }
-        stockRepository.saveAll(dtoStocks);
+        Companies companies = client.sendCompanyRequest(); // получаем компании
+        List<CompanyDTO> dtos = companies.stream().map(this::mapToCompanyDTO).collect(Collectors.toList()); // мапим в dto
+        CompletableFuture.supplyAsync(() -> companyRepository.saveAll(dtos)); //отправляем на сохранение в отдельном потоке
+        logger.info("companies.size() {}", companies.size());
+
+        // на каждую компанию из списка запросить информацию по акциям и положить все в очередь на сохранение (многопоточно)
+        companies.forEach(it -> {
+            CompletableFuture.supplyAsync(() -> it)
+                        .thenApply(company -> client.stockRequest(company.getSymbol()))
+                        .thenAccept(this::putStocksToQueue)
+                        .exceptionally(ex -> {
+                            logger.error("Error in CompletableFuture: " + ex);
+                            return null;
+                        } );
+        });
+
+        // запустить поток, который будет вытаскивать из очереди и сохранять в базу пачками по 200
+        pollerExecutor.submit(this::pollAndSaveStocksFromQueue);
+
+        long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+        logger.info("execute() {} msecs", elapsed);
     }
 
 
+    private void putStocksToQueue(Stock stock) {
+        logger.info("putStocksToQueue() started");
+        StockDTO stockDTO = mapToStockDTO(stock);
+        try {
+                queue.put(stockDTO);
+                logger.info("putStocksToQueue() done");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Restore the interrupted status
+                throw new IllegalStateException(e);
+            }
+    }
+
+    private void pollAndSaveStocksFromQueue() {
+        boolean interrupted = false;
+        while (!interrupted) {
+            try {
+                logger.info("...wait for take");
+                StockDTO data = queue.poll(2, TimeUnit.SECONDS); // если на момент запроса (окончание таймаута) нет данных вернет null
+                if (data != null) {
+                    stocksForSave.add(data);
+                    logger.info("data saved to list");
+                    if (stocksForSave.size() >= 200) {
+                        stockRepository.saveAll(stocksForSave);
+                        logger.info("saved butch with 200 stocks" );
+                        stocksForSave.clear();
+                    }
+                } else {
+                    logger.info("No data available");
+                    stockRepository.saveAll(stocksForSave);
+                    logger.info("saved butch with stocks size: " + stocksForSave.size() );
+                    stocksForSave.clear();
+                    logger.info("Exit from saverThread");
+                    break;
+                }
+
+                // Проверяем флаг прерывания и выходим из цикла, если поток был прерван
+                interrupted = Thread.interrupted();
+            } catch (InterruptedException e) {
+                logger.error("Error while waiting for data", e);
+                interrupted = true; // Устанавливаем флаг прерывания
+            }
+
+        }
+    }
+
+
+
     public CompanyDTO mapToCompanyDTO(Company company) {
-        CompanyDTO companyDTO = new CompanyDTO();
-        companyDTO.setName(company.getName());
-        companyDTO.setEnabled(company.isEnabled());
-        companyDTO.setSymbol(company.getSymbol());
-        return companyDTO;
+            CompanyDTO companyDTO = new CompanyDTO();
+            companyDTO.setName(company.getName());
+            companyDTO.setEnabled(company.isEnabled());
+            companyDTO.setSymbol(company.getSymbol());
+            return companyDTO;
     }
 
     public StockDTO mapToStockDTO(Stock stock) {
