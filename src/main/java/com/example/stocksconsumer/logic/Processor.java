@@ -4,9 +4,9 @@ import com.example.stocksconsumer.dao.CompanyDTO;
 import com.example.stocksconsumer.dao.CompanyRepository;
 import com.example.stocksconsumer.dao.StockDTO;
 import com.example.stocksconsumer.dao.StockRepository;
-import com.example.stocksconsumer.entity.Companies;
-import com.example.stocksconsumer.entity.Company;
-import com.example.stocksconsumer.entity.Stock;
+import com.example.stocksconsumer.models.Companies;
+import com.example.stocksconsumer.models.Company;
+import com.example.stocksconsumer.models.Stock;
 import com.example.stocksconsumer.ws.ApperateClient;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,7 @@ public class Processor {
 
     public void execute() {
         List<StockDTO> dtoStocks = new ArrayList<>();
-        Companies companies = client.companyRequest();
+        Companies companies = client.sendCompanyRequest();
         List<CompanyDTO> dtos = companies.stream().map(this::mapToCompanyDTO).collect(Collectors.toList());
         companyRepository.saveAll(dtos);
 
@@ -45,38 +45,11 @@ public class Processor {
 
 
     public CompanyDTO mapToCompanyDTO(Company company) {
-            CompanyDTO companyDTO = new CompanyDTO();
-
-            companyDTO.setAddress(company.getAddress());
-            companyDTO.setAddress2(company.getAddress2());
-            companyDTO.setCeo(company.getCeo());
-            companyDTO.setCity(company.getCity());
-            companyDTO.setCompanyName(company.getCompanyName());
-            companyDTO.setCountry(company.getCountry());
-            companyDTO.setDate(company.getDate());
-            companyDTO.setEmployees(company.getEmployees());
-            companyDTO.setExchange(company.getExchange());
-            companyDTO.setExchangeCode(company.getExchangeCode());
-            companyDTO.setIndustry(company.getIndustry());
-            companyDTO.setIssuetype(company.getIssuetype());
-            companyDTO.setLongDescription(company.getLongDescription());
-            companyDTO.setMarketcap(company.getMarketcap());
-            companyDTO.setPhone(company.getPhone());
-            companyDTO.setPrimarySicCode(company.getPrimarySicCode());
-            companyDTO.setSector(company.getSector());
-            companyDTO.setSecurityName(company.getSecurityName());
-            companyDTO.setSecurityType(company.getSecurityType());
-            companyDTO.setShortDescription(company.getShortDescription());
-            companyDTO.setState(company.getState());
-            companyDTO.setSymbol(company.getSymbol());
-            companyDTO.setWebsite(company.getWebsite());
-            companyDTO.setZip(company.getZip());
-            companyDTO.setId(company.getId());
-            companyDTO.setKey(company.getKey());
-            companyDTO.setSubkey(company.getSubkey());
-            companyDTO.setUpdated(company.getUpdated());
-
-            return companyDTO;
+        CompanyDTO companyDTO = new CompanyDTO();
+        companyDTO.setName(company.getName());
+        companyDTO.setEnabled(company.isEnabled());
+        companyDTO.setSymbol(company.getSymbol());
+        return companyDTO;
     }
 
     public StockDTO mapToStockDTO(Stock stock) {

@@ -1,8 +1,8 @@
 package com.example.stocksconsumer.controller;
 
 import com.example.stocksconsumer.config.AppConfig;
-import com.example.stocksconsumer.entity.Companies;
-import com.example.stocksconsumer.entity.Stock;
+import com.example.stocksconsumer.models.Companies;
+import com.example.stocksconsumer.models.Stock;
 import com.example.stocksconsumer.logic.Processor;
 import com.example.stocksconsumer.ws.ApperateClient;
 import org.springframework.http.HttpStatus;
@@ -34,17 +34,11 @@ public class TestController {
 
     @GetMapping(value = "/company-test", produces = JSON_UTF8)
     public ResponseEntity<Companies> companyTest() {
-        Companies result = apperateClient.companyRequest();
+        Companies result = apperateClient.sendCompanyRequest();
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 
-    @GetMapping(value = "/company-test-limit", produces = JSON_UTF8)
-    public ResponseEntity<String> companyTestLimit() {
-        Companies result = apperateClient.companyRequestWithLimit("10000");
-        int all = result.size();
-        return new ResponseEntity<>("all companies size:"+all, HttpStatus.OK);
-    }
 
     @GetMapping(value = "/stock-test", produces = JSON_UTF8)
     public ResponseEntity<Stock> stockTest() {

@@ -1,9 +1,9 @@
 package com.example.stocksconsumer.ws;
 
 import com.example.stocksconsumer.config.ApperateConfig;
-import com.example.stocksconsumer.entity.Companies;
-import com.example.stocksconsumer.entity.Stock;
-import com.example.stocksconsumer.entity.Stocks;
+import com.example.stocksconsumer.models.Companies;
+import com.example.stocksconsumer.models.Stock;
+import com.example.stocksconsumer.models.Stocks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -35,39 +35,17 @@ public class ApperateClient {
                 .build();
     }
 
+    /**
+     * потянуть ~ 11 190 компаний
+     *
+     */
 
-    public Companies companyRequest() {
+    public Companies sendCompanyRequest() {
         logger.debug("companyRequest() called");
         long started = System.nanoTime();
 
         // Создайте URL с токеном
-        String url = config.getUrl() + "company?last=10&token=" + config.getToken();
-
-        // Создайте ParameterizedTypeReference для сопоставления с объектом Companies
-        ParameterizedTypeReference<Companies> responseType = new ParameterizedTypeReference<>() {};
-
-        // Выполните GET-запрос и сопоставьте ответ с объектом Companies
-        ResponseEntity<Companies> responseEntity = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
-
-        HttpStatus httpStatus = responseEntity.getStatusCode();
-        Companies response = responseEntity.getBody();
-
-        if (HttpStatus.OK != httpStatus || response == null) {
-            throw new IllegalStateException("Bad or empty response: " + httpStatus);
-        }
-
-        long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
-        logger.debug("completed in {} msecs", elapsed);
-
-        return response;
-    }
-
-    public Companies companyRequestWithLimit(String limit) {
-        logger.debug("companyRequest() called");
-        long started = System.nanoTime();
-
-        // Создайте URL с токеном
-        String url = config.getUrl() + "company?last="+limit+"&token=" + config.getToken();
+        String url = config.getUrl() + "ref-data/symbols?token=" + config.getToken();
 
         // Создайте ParameterizedTypeReference для сопоставления с объектом Companies
         ParameterizedTypeReference<Companies> responseType = new ParameterizedTypeReference<>() {};
@@ -94,7 +72,7 @@ public class ApperateClient {
         long started = System.nanoTime();
 
         // Создайте URL с токеном
-        String url = config.getUrl() + "quote/" + symbol + "?token=" + config.getToken();
+        String url = config.getUrl() + "data/core/quote/" + symbol + "?token=" + config.getToken();
 
         // Создайте ParameterizedTypeReference для сопоставления с объектом Companies
         ParameterizedTypeReference<Stocks> responseType = new ParameterizedTypeReference<>() {};

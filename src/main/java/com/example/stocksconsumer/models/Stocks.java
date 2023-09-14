@@ -1,4 +1,4 @@
-package com.example.stocksconsumer.entity;
+package com.example.stocksconsumer.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;

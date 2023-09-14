@@ -18,11 +18,11 @@ public class ApperateReporterJob {
     }
 
 
-    @Scheduled(initialDelayString = "20000", fixedRateString = "#{@processorConfig.scheduleReporterIntervalMillis}")
-    public void job() {
-        LOGGER.info("job() started");
-        processor.report();
-        LOGGER.info("job() completed");
-    }
+//    @Scheduled(initialDelayString = "20000", fixedRateString = "#{@processorConfig.scheduleReporterIntervalMillis}")
+//    public void job() {
+//        LOGGER.info("job() started");
+//        processor.report();
+//        LOGGER.info("job() completed");
+//    }
 
 }

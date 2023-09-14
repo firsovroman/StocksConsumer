@@ -1,4 +1,4 @@
-package com.example.stocksconsumer.entity;
+package com.example.stocksconsumer.models;
 
 public class Stock {
     private long avgTotalVolume;
