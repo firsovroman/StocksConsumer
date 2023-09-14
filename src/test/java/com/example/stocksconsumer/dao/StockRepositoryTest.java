@@ -10,7 +10,22 @@ import java.util.Optional;
 class StockRepositoryTest {
 
     @Autowired
+    CompanyRepository companyRepository;
+
+    @Autowired
     StockRepository stockRepository;
+
+
+    @Test
+    void test_company() {
+        CompanyDTO companyDTO = new CompanyDTO();
+        companyDTO.setName("Apple");
+        companyDTO.setSymbol("aapl");
+        companyDTO.setEnabled(true);
+        CompanyDTO saved = companyRepository.save(companyDTO);
+        System.out.println(saved.getCompanyId());
+    }
+
 
     @Test
     void test() {
