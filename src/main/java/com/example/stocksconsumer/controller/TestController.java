@@ -48,8 +48,10 @@ public class TestController {
 
 
     @GetMapping(value = "/processor-test", produces = JSON_UTF8)
-    public ResponseEntity<String> processorTest() {
-        processor.execute();
+    public ResponseEntity<String> processorTest() throws InterruptedException {
+        processor.processCompanies();
+        Thread.sleep(10000);
+        processor.processStocks();
         return new ResponseEntity<>("Ок", HttpStatus.OK);
     }
 }

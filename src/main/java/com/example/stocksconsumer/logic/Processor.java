@@ -26,46 +26,81 @@ public class Processor {
     private final ApperateClient client;
     private final StockRepository stockRepository;
     private final CompanyRepository companyRepository;
-    private final ExecutorService pollerExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService stocksSaverExecutor;
 
-    BlockingQueue<StockDTO> queue = new LinkedBlockingQueue<>(200);
+    // очередь между потоком отправки запросов на стоимость акций и потоком на сохранение
+    BlockingQueue<StockDTO> stockRequestSaveQueue = new LinkedBlockingQueue<>();
 
-    BlockingQueue<StockDTO> stocksForSave = new LinkedBlockingQueue<>();
+    // пул нужен для того, чтобы соблюсти batch=200 на сохранение акций
+    BlockingQueue<StockDTO> stockSavePool = new LinkedBlockingQueue<>();
 
 
+    // список компаний (in memory), что-то вроде кеша который мы обновляем раз в час (не так часто как стоимость акций)
+    BlockingQueue<CompanyDTO> companiesForSave = new LinkedBlockingQueue<>();
 
 
     public Processor(ApperateClient client, CompanyRepository companyRepository, StockRepository stockRepository) {
         this.client = client;
         this.stockRepository = stockRepository;
         this.companyRepository = companyRepository;
+        this.stocksSaverExecutor = Executors.newSingleThreadExecutor();
+    }
+
+    public void processCompanies() {
+        long started = System.nanoTime();
+
+        Companies companies = client.sendCompanyRequest(); // отправляем запрос на компании и получаем список в ответе
+        // мапим в dto
+        List<CompanyDTO> dtos = companies.stream()
+                .map(this::mapToCompanyDTO)
+                .collect(Collectors.toList());
+
+        CompletableFuture.supplyAsync(() -> companyRepository.saveAll(dtos)); //отправляем на сохранение в отдельном потоке
+
+        //очищаем старые значения в пуле
+        companiesForSave.clear();
+        logger.info("companiesForSave cleared");
+
+
+        // заполняем очередь компаний активными компаниями для последующей вычитки и отправки запросов на акции
+//        dtos.stream().filter(CompanyDTO::isEnabled).forEach(it -> {
+        dtos.forEach(it -> {
+            try {
+                companiesForSave.put(it);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
+        });
+
+        long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+        logger.info("processCompanies() {} msecs", elapsed);
+        logger.info("companies size after filling {}", companies.size());
     }
 
 
-    public void execute() {
-        long started = System.nanoTime();
 
-        Companies companies = client.sendCompanyRequest(); // получаем компании
-        List<CompanyDTO> dtos = companies.stream().map(this::mapToCompanyDTO).collect(Collectors.toList()); // мапим в dto
-        CompletableFuture.supplyAsync(() -> companyRepository.saveAll(dtos)); //отправляем на сохранение в отдельном потоке
-        logger.info("companies.size() {}", companies.size());
+
+    public void processStocks() {
+        long started = System.nanoTime();
+        logger.info("processStocks() started with companiesForSave.size(): {}", companiesForSave.size());
 
         // на каждую компанию из списка запросить информацию по акциям и положить все в очередь на сохранение (многопоточно)
-        companies.stream().filter(Company::isEnabled).forEach(it -> {
+        companiesForSave.forEach(it -> {
             CompletableFuture.supplyAsync(() -> it)
-                        .thenApply(company -> client.stockRequest(company.getSymbol()))
-                        .thenAccept(this::putStocksToQueue)
+                        .thenApply(company -> client.stockRequest(company.getSymbol())) // отправить запросы
+                        .thenAccept(this::putStocksToQueue)  // ответы положить в очередь на маппинг и сохранение
                         .exceptionally(ex -> {
                             logger.error("Error in CompletableFuture: " + ex);
                             return null;
                         } );
         });
 
-        // запустить поток, который будет вытаскивать из очереди и сохранять в базу пачками по 200
-        pollerExecutor.submit(this::pollAndSaveStocksFromQueue);
+        // запустить отдельный поток, который будет вытаскивать из очереди и сохранять в базу пачками по 200
+        stocksSaverExecutor.submit(this::pollAndSaveStocksFromQueue);
 
         long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
-        logger.info("execute() {} msecs", elapsed);
+        logger.info("processStocks() {} msecs", elapsed);
     }
 
 
@@ -73,7 +108,7 @@ public class Processor {
         logger.info("putStocksToQueue() started");
         StockDTO stockDTO = mapToStockDTO(stock);
         try {
-                queue.put(stockDTO);
+                stockRequestSaveQueue.put(stockDTO);
                 logger.info("putStocksToQueue() done");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt(); // Restore the interrupted status
@@ -86,20 +121,20 @@ public class Processor {
         while (!interrupted) {
             try {
                 logger.info("...wait for take");
-                StockDTO data = queue.poll(2, TimeUnit.SECONDS); // если на момент запроса (окончание таймаута) нет данных вернет null
+                StockDTO data = stockRequestSaveQueue.poll(2, TimeUnit.SECONDS); // если на момент запроса (окончание таймаута) нет данных вернет null
                 if (data != null) {
-                    stocksForSave.add(data);
+                    stockSavePool.add(data);
                     logger.info("data saved to list");
-                    if (stocksForSave.size() >= 200) {
-                        stockRepository.saveAll(stocksForSave);
+                    if (stockSavePool.size() >= 200) {
+                        stockRepository.saveAll(stockSavePool);
                         logger.info("saved butch with 200 stocks" );
-                        stocksForSave.clear();
+                        stockSavePool.clear();
                     }
                 } else {
                     logger.info("No data available");
-                    stockRepository.saveAll(stocksForSave);
-                    logger.info("saved butch with stocks size: " + stocksForSave.size() );
-                    stocksForSave.clear();
+                    stockRepository.saveAll(stockSavePool);
+                    logger.info("saved butch with stocks size: " + stockSavePool.size() );
+                    stockSavePool.clear();
                     logger.info("Exit from saverThread");
                     break;
                 }

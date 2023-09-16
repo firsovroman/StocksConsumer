@@ -3,6 +3,7 @@ package com.example.stocksconsumer.dao;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Entity(name = "companies")
 public class CompanyDTO {
@@ -47,5 +48,18 @@ public class CompanyDTO {
 
     public void setEnabled(boolean enabled) {
         isEnabled = enabled;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CompanyDTO that = (CompanyDTO) o;
+        return isEnabled == that.isEnabled && Objects.equals(companyId, that.companyId) && Objects.equals(symbol, that.symbol) && Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(companyId, symbol, name, isEnabled);
     }
 }

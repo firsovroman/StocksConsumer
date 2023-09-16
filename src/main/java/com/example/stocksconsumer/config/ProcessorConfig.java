@@ -11,16 +11,24 @@ import java.util.Objects;
 @PropertySource(value = "classpath:processor.properties", encoding = "UTF-8")
 public class ProcessorConfig {
 
-    private final String scheduleReaderIntervalMillis;
+    private final String scheduleCompaniesReaderIntervalMillis;
+    private final String scheduleStocksReaderIntervalMillis;
+
+
     private final String scheduleReporterIntervalMillis;
 
     public ProcessorConfig(@Qualifier("appEnvironment") Environment reader) {
-        this.scheduleReaderIntervalMillis = Objects.requireNonNull(reader.getProperty("processor.scheduleReaderIntervalMillis"));
+        this.scheduleCompaniesReaderIntervalMillis = Objects.requireNonNull(reader.getProperty("processor.scheduleCompaniesReaderIntervalMillis"));
+        this.scheduleStocksReaderIntervalMillis = Objects.requireNonNull(reader.getProperty("processor.scheduleStocksReaderIntervalMillis"));
         this.scheduleReporterIntervalMillis = Objects.requireNonNull(reader.getProperty("processor.scheduleReporterIntervalMillis"));
     }
 
-    public String getScheduleReaderIntervalMillis() {
-        return scheduleReaderIntervalMillis;
+    public String getScheduleCompaniesReaderIntervalMillis() {
+        return scheduleCompaniesReaderIntervalMillis;
+    }
+
+    public String getScheduleStocksReaderIntervalMillis() {
+        return scheduleStocksReaderIntervalMillis;
     }
 
     public String getScheduleReporterIntervalMillis() {
