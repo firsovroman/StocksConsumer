@@ -51,7 +51,7 @@ public class Processor {
         logger.info("companies.size() {}", companies.size());
 
         // на каждую компанию из списка запросить информацию по акциям и положить все в очередь на сохранение (многопоточно)
-        companies.forEach(it -> {
+        companies.stream().filter(Company::isEnabled).forEach(it -> {
             CompletableFuture.supplyAsync(() -> it)
                         .thenApply(company -> client.stockRequest(company.getSymbol()))
                         .thenAccept(this::putStocksToQueue)
