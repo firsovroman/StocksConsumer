@@ -155,10 +155,10 @@ public class Processor {
     public void reportPayLoad() {
 
         List<StockDTO> fastestGrowsStocks = stockRepository.findTopFiveFastestGrowingStocks();
-        logger.info("fastestGrowsStocks {}", fastestGrowsStocks);
+        System.out.println("fastestGrowsStocks: " + fastestGrowsStocks);
 
         List<StockDTO> expensiveStocks = stockRepository.findTopFiveExpensiveStocks();
-        logger.info("expensiveStocks {}", expensiveStocks);
+        System.out.println("expensiveStocks: " + expensiveStocks);
 
     }
 
