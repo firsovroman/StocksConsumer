@@ -6,14 +6,12 @@ import com.example.stocksconsumer.dao.StockDTO;
 import com.example.stocksconsumer.dao.StockRepository;
 import com.example.stocksconsumer.mapper.Mapper;
 import com.example.stocksconsumer.models.Companies;
-import com.example.stocksconsumer.models.Company;
 import com.example.stocksconsumer.models.Stock;
 import com.example.stocksconsumer.ws.ApperateClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -153,16 +151,14 @@ public class Processor {
     }
 
 
-    public void report() {
 
-        Comparator<StockDTO> stockDTOComparator
-                = Comparator.comparing(
-                StockDTO::getVolume, Comparator.reverseOrder())
-                .thenComparing(StockDTO::getPreviousVolume, Comparator.reverseOrder())
-                .thenComparing(StockDTO::getCompanyName, Comparator.naturalOrder());
+    public void reportPayLoad() {
 
-        List<StockDTO> stocks = (List<StockDTO>) stockRepository.findAll();
-        stocks.stream().sorted(stockDTOComparator).limit(5).forEach(System.out::println);
+        List<StockDTO> fastestGrowsStocks = stockRepository.findTopFiveFastestGrowingStocks();
+        logger.info("fastestGrowsStocks {}", fastestGrowsStocks);
+
+        List<StockDTO> expensiveStocks = stockRepository.findTopFiveExpensiveStocks();
+        logger.info("expensiveStocks {}", expensiveStocks);
 
     }
 

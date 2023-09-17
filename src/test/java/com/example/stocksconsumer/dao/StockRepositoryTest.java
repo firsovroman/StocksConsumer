@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
@@ -43,4 +44,17 @@ class StockRepositoryTest {
         System.out.println(stockDTO.get());
     }
 
+
+    @Test
+    void findTopFiveFastestGrowingStocks_test() {
+        List<StockDTO> stocks = stockRepository.findTopFiveFastestGrowingStocks();
+        stocks.forEach(it -> System.out.println(it.getCompanyName()));
+    }
+
+
+    @Test
+    void findTopFiveExpensiveStocks_test() {
+        List<StockDTO> stocks = stockRepository.findTopFiveExpensiveStocks();
+        stocks.forEach(it -> System.out.println(it.getCompanyName()));
+    }
 }
