@@ -31,8 +31,8 @@ class StockRepositoryTest {
     @Test
     void test() {
         StockDTO stockDTO = new StockDTO();
-        stockDTO.setCalculationPrice("122323");
         stockDTO.setCompanyName("hong2323");
+        stockDTO.setSymbol("hg");
         StockDTO saved = stockRepository.save(stockDTO);
         System.out.println(saved.getStockId());
     }
@@ -40,7 +40,7 @@ class StockRepositoryTest {
     @Test
     void test2() {
 
-        Optional<StockDTO> stockDTO = stockRepository.findById(3L);
+        Optional<StockDTO> stockDTO = stockRepository.findById(1L);
         System.out.println(stockDTO.get());
     }
 

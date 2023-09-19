@@ -9,7 +9,7 @@ import java.util.Objects;
 public class CompanyDTO {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "company_company_id_seq")
     private Long companyId;
     private String symbol;
     private String name;
