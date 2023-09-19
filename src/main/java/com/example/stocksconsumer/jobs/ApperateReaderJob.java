@@ -18,18 +18,18 @@ public class ApperateReaderJob {
     }
 
 
-    @Scheduled(initialDelayString = "1000", fixedRateString = "#{@processorConfig.getScheduleCompaniesReaderIntervalMillis}")
-    public void jobCompanies() {
-        LOGGER.info("processCompanies() started");
-        processor.processCompanies();
-        LOGGER.info("processCompanies() completed");
-    }
-
-    @Scheduled(initialDelayString = "10000", fixedRateString = "#{@processorConfig.getScheduleStocksReaderIntervalMillis}")
-    public void jobStocks() {
-        LOGGER.info("processStocks() started");
-        processor.processStocks();
-        LOGGER.info("processStocks() completed");
-    }
+//    @Scheduled(initialDelayString = "1000", fixedRateString = "#{@processorConfig.getScheduleCompaniesReaderIntervalMillis}")
+//    public void jobCompanies() {
+//        LOGGER.info("processCompanies() started");
+//        processor.processCompanies();
+//        LOGGER.info("processCompanies() completed");
+//    }
+//
+//    @Scheduled(initialDelayString = "10000", fixedRateString = "#{@processorConfig.getScheduleStocksReaderIntervalMillis}")
+//    public void jobStocks() {
+//        LOGGER.info("processStocks() started");
+//        processor.processStocks();
+//        LOGGER.info("processStocks() completed");
+//    }
 
 }
