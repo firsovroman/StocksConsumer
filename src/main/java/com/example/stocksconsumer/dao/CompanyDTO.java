@@ -5,12 +5,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Objects;
 
-@Entity(name = "companies")
+@Entity(name = "company")
 public class CompanyDTO {
 
     @Id
-    @GeneratedValue(generator = "company_company_id_seq")
-    private Long companyId;
+    @GeneratedValue(generator = "company_id_seq")
+    private Long id;
     private String symbol;
     private String name;
     private boolean isEnabled;
@@ -18,12 +18,12 @@ public class CompanyDTO {
     public CompanyDTO() {
     }
 
-    public Long getCompanyId() {
-        return companyId;
+    public Long getId() {
+        return id;
     }
 
-    public void setCompanyId(Long companyId) {
-        this.companyId = companyId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getSymbol() {
@@ -50,16 +50,4 @@ public class CompanyDTO {
         isEnabled = enabled;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CompanyDTO that = (CompanyDTO) o;
-        return isEnabled == that.isEnabled && Objects.equals(companyId, that.companyId) && Objects.equals(symbol, that.symbol) && Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(companyId, symbol, name, isEnabled);
-    }
 }

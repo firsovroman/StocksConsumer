@@ -24,7 +24,7 @@ class StockRepositoryTest {
         companyDTO.setSymbol("aapl");
         companyDTO.setEnabled(true);
         CompanyDTO saved = companyRepository.save(companyDTO);
-        System.out.println(saved.getCompanyId());
+        System.out.println(saved.getId());
     }
 
 
@@ -34,7 +34,7 @@ class StockRepositoryTest {
         stockDTO.setCompanyName("hong2323");
         stockDTO.setSymbol("hg");
         StockDTO saved = stockRepository.save(stockDTO);
-        System.out.println(saved.getStockId());
+        System.out.println(saved.getId());
     }
 
     @Test

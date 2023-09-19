@@ -4,12 +4,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-@Entity(name = "stocks")
+@Entity(name = "stock")
 public class StockDTO {
 
     @Id
-    @GeneratedValue(generator = "stock_stock_id_seq")
-    private long stockId;
+    @GeneratedValue(generator = "stock_id_seq")
+    private long id;
     private double change;
     private String companyName;
     private double latestPrice;
@@ -21,12 +21,12 @@ public class StockDTO {
     public StockDTO() {
     }
 
-    public long getStockId() {
-        return stockId;
+    public long getId() {
+        return id;
     }
 
-    public void setStockId(long stockId) {
-        this.stockId = stockId;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public double getChange() {
@@ -80,7 +80,7 @@ public class StockDTO {
     @Override
     public String toString() {
         return "StockDTO{" +
-                "stockId=" + stockId +
+                "stockId=" + id +
                 ", change=" + change +
                 ", companyName='" + companyName + '\'' +
                 ", latestPrice=" + latestPrice +
