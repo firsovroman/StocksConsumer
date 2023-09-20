@@ -3,6 +3,7 @@ package com.example.stocksfetcher.jobs;
 import com.example.stocksfetcher.logic.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,11 +18,11 @@ public class ApperateReporterJob {
     }
 
 
-//    @Scheduled(initialDelayString = "20000", fixedRateString = "#{@processorConfig.scheduleReporterIntervalMillis}")
-//    public void job() {
-//        LOGGER.info("job() started");
-//        processor.reportPayLoad();
-//        LOGGER.info("job() completed");
-//    }
+    @Scheduled(initialDelayString = "20000", fixedRateString = "#{@processorConfig.scheduleReporterIntervalMillis}")
+    public void job() {
+        LOGGER.info("job() started");
+        processor.reportPayLoad();
+        LOGGER.info("job() completed");
+    }
 
 }
