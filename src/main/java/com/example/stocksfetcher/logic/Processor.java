@@ -27,7 +27,7 @@ public class Processor {
     private final ApperateClient client;
     private final StockRepository stockRepository;
     private final CompanyRepository companyRepository;
-    private final ExecutorService stocksSaverExecutor;
+    private final ExecutorService stocksConsumerExecutor;
 
     // очередь между потоком отправки запросов на стоимость акций и потоком на сохранение
     BlockingQueue<StockDTO> stockRequestSaveQueue = new LinkedBlockingQueue<>();
@@ -44,7 +44,7 @@ public class Processor {
         this.client = client;
         this.stockRepository = stockRepository;
         this.companyRepository = companyRepository;
-        this.stocksSaverExecutor = Executors.newSingleThreadExecutor();
+        this.stocksConsumerExecutor = Executors.newSingleThreadExecutor();
     }
 
     public void processCompanies() {
@@ -86,7 +86,7 @@ public class Processor {
         long started = System.nanoTime();
         logger.info("processStocks() started with companiesForSave.size(): {}", companiesForSave.size());
 
-        // на каждую компанию из списка запросить информацию по акциям и положить все в очередь на сохранение (многопоточно)
+        // (Producer) на каждую компанию из списка запросить информацию по акциям и положить все в очередь на сохранение (многопоточно)
         companiesForSave.forEach(it -> {
             CompletableFuture.supplyAsync(() -> it)
                         .thenApply(company -> client.stockRequest(company.getSymbol())) // отправить запросы
@@ -97,8 +97,8 @@ public class Processor {
                         } );
         });
 
-        // запустить отдельный поток, который будет вытаскивать из очереди и сохранять в базу пачками по 200
-        stocksSaverExecutor.submit(this::pollAndSaveStocksFromQueue);
+        // (Consumer) запустить отдельный поток, который будет вытаскивать из очереди и сохранять в базу пачками по 200
+        stocksConsumerExecutor.submit(this::pollAndSaveStocksFromQueue);
 
         long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
         logger.info("processStocks() {} msecs", elapsed);
@@ -136,7 +136,7 @@ public class Processor {
                     stockRepository.saveAll(stockSavePool);
                     logger.info("saved butch with stocks size: " + stockSavePool.size() );
                     stockSavePool.clear();
-                    logger.info("Exit from saverThread");
+                    logger.info("Exit from consumerThread");
                     break;
                 }
 
