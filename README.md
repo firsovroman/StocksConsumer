@@ -10,7 +10,7 @@
 
 
 
-Рис.2 - Схема используемого паттерна многопоточной обработки.
+Рис.2 - Архитектурная схема многопоточной обработки.
 
 ![alt text](https://github.com/firsovroman/StocksFetcher/blob/master/.doc/diagrams/multiThread_pattern.png)
 
