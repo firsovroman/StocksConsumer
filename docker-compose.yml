@@ -1,0 +1,25 @@
+version: '3'
+services:
+  db:
+    image: postgres:12.7
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: srv_iexcloud
+      POSTGRES_PASSWORD: srv_iexcloud
+      POSTGRES_DB: apperate
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    links:
+      - db
+    volumes:
+      - ./target/StocksFetcher.jar:/home/StocksFetcher.jar
