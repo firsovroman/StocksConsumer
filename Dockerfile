@@ -1,6 +1,6 @@
 FROM openjdk:11
 
-# Копируем сборку TelegramBotParser.jar в контейнер
+# Копируем сборку StocksFetcher.jar в контейнер
 COPY target/StocksFetcher.jar /home/StocksFetcher.jar
 
 # запускаем сам сервис
