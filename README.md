@@ -22,7 +22,7 @@
 | Файл | Свойство | Описание |
 |------------|------------|------------|
 | apperate.properties  | apperate-client.url  | целевой АПИ  |
-| apperate.properties   | apperate-client.token   | Токен для подключения. Можно получить в ЛК после регистрации. (https://iexcloud.io/cloud-login?r=https%3A%2F%2Fiexcloud.io%2Fconsole%2Fhome#/)  |
+| apperate.properties   | apperate-client.token (ВНИМАНИЕ ПРИ НЕ АКТУАЛЬНОМ ТОКЕНЕ ПРИЛОЖЕНИЕ БУДЕТ ПАДАТЬ!!!)  | Токен для подключения. Можно получить в ЛК после регистрации. (https://iexcloud.io/cloud-login?r=https%3A%2F%2Fiexcloud.io%2Fconsole%2Fhome#/)  |
 | processor.properties  | processor.scheduleCompaniesReaderIntervalMillis  | Интервал для запуска джобы вычитывания компаний.   |
 | processor.properties   | processor.scheduleStocksReaderIntervalMillis   | Интервал для запуска джобы получения информации по акциям компаний.  |
 | processor.properties   | processor.scheduleReporterIntervalMillis   | Интервал для запуска джобы вывода полезной информации по стоимости акций компаний.  |
@@ -42,4 +42,7 @@
 Для запуска потребуется наличие контейнеризатора приложений Docker
 
 1. Клонируйте репозиторий на свой локальный компьютер
-2. ...
+2. В конфигурационном файле <b>src/main/resources/apperate.properties</b> задайте свойство <b>apperate-client.token </b> введите свой публичный API-токен. 
+(ВНИМАНИЕ ПРИ НЕ АКТУАЛЬНОМ ТОКЕНЕ ПРИЛОЖЕНИЕ БУДЕТ ПАДАТЬ!!! Как получить токен см. предыдущий раздел)
+3. С помошью maven соберите проект. (ВАЖНО! Соберите с использованием профиля сборки <b>prod</b> ) Проверьте что сборка появилась <b>target/StocksFetcher.jar</b> 
+4. Выполните <b>_docker compose up_</b> в директории проекта
